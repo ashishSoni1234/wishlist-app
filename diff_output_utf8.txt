@@ -1,0 +1,1160 @@
+﻿diff --git a/app/routes/app._index.jsx b/app/routes/app._index.jsx
+index bc4cc6c..86c892c 100644
+--- a/app/routes/app._index.jsx
++++ b/app/routes/app._index.jsx
+@@ -1,7 +1,19 @@
+ import { useLoaderData } from "react-router";
+-import { useAppBridge } from "@shopify/app-bridge-react";
++
+ import { boundary } from "@shopify/shopify-app-react-router/server";
+ import { authenticate } from "../shopify.server";
++import {
++  Page,
++  Layout,
++  Text,
++  Card,
++  Button,
++  BlockStack,
++  InlineStack,
++  Box,
++  List,
++  Link,
++} from "@shopify/polaris";
+ 
+ export const loader = async ({ request }) => {
+   const { admin } = await authenticate.admin(request);
+@@ -144,252 +156,120 @@ export const loader = async ({ request }) => {
+ 
+ export default function WishlistDashboard() {
+   const { analytics } = useLoaderData();
+-  const shopify = useAppBridge();
+ 
+   return (
+-    <s-page heading="Wishlist Dashboard">
+-      <s-button
+-        slot="primary-action"
+-        onClick={() => window.location.reload()}
+-      >
+-        Refresh Data
+-      </s-button>
+-
+-      {/* Summary Cards */}
+-      <s-section>
+-        <s-stack direction="inline" gap="base" wrap>
+-          {/* Total Users */}
+-          <s-box
+-            padding="large-200"
+-            borderWidth="base"
+-            borderRadius="large-100"
+-            background="subdued"
+-            style={{ flex: 1, minWidth: "200px" }}
+-          >
+-            <s-stack direction="block" gap="small">
+-              <s-text variant="bodyMd" color="subdued">
+-                ≡ƒæÑ Users with Wishlists
+-              </s-text>
+-              <s-text variant="heading2xl">
+-                {analytics.totalCustomers}
+-              </s-text>
+-            </s-stack>
+-          </s-box>
+-
+-          {/* Total Items */}
+-          <s-box
+-            padding="large-200"
+-            borderWidth="base"
+-            borderRadius="large-100"
+-            background="subdued"
+-            style={{ flex: 1, minWidth: "200px" }}
+-          >
+-            <s-stack direction="block" gap="small">
+-              <s-text variant="bodyMd" color="subdued">
+-                ΓÖÑ Total Wishlisted Items
+-              </s-text>
+-              <s-text variant="heading2xl">
+-                {analytics.totalItems}
+-              </s-text>
+-            </s-stack>
+-          </s-box>
+-
+-          {/* Today */}
+-          <s-box
+-            padding="large-200"
+-            borderWidth="base"
+-            borderRadius="large-100"
+-            background="subdued"
+-            style={{ flex: 1, minWidth: "200px" }}
+-          >
+-            <s-stack direction="block" gap="small">
+-              <s-text variant="bodyMd" color="subdued">
+-                ≡ƒôè Updated Today
+-              </s-text>
+-              <s-text variant="heading2xl">
+-                {analytics.todayCount}
+-              </s-text>
+-            </s-stack>
+-          </s-box>
+-        </s-stack>
+-      </s-section>
+-
+-      {/* Top Wishlisted Products */}
+-      <s-section heading="Most Wishlisted Products">
+-        {analytics.topProducts.length === 0 ? (
+-          <s-box padding="large-200">
+-            <s-stack direction="block" gap="base" align="center">
+-              <s-text variant="headingLg">No wishlist data yet</s-text>
+-              <s-text variant="bodyMd" color="subdued">
+-                Wishlist analytics will appear here once customers start adding
+-                products to their wishlists. Make sure the Wishlist Button theme
+-                extension is active on your store.
+-              </s-text>
+-            </s-stack>
+-          </s-box>
+-        ) : (
+-          <s-box>
+-            {/* Table Header */}
+-            <s-box
+-              padding="base"
+-              borderWidth="base"
+-              borderRadius="base"
+-              background="subdued"
+-              style={{ marginBottom: "4px" }}
+-            >
+-              <div
+-                style={{
+-                  display: "grid",
+-                  gridTemplateColumns: "48px 1fr 100px 80px 80px",
+-                  gap: "12px",
+-                  alignItems: "center",
+-                  fontWeight: 600,
+-                }}
+-              >
+-                <span></span>
+-                <s-text variant="bodySm" fontWeight="semibold">Product</s-text>
+-                <s-text variant="bodySm" fontWeight="semibold">Price</s-text>
+-                <s-text variant="bodySm" fontWeight="semibold">Wishlists</s-text>
+-                <span></span>
+-              </div>
+-            </s-box>
+-
+-            {/* Table Rows */}
+-            {analytics.topProducts.map((product) => (
+-              <s-box
+-                key={product.id}
+-                padding="base"
+-                borderWidth="base"
+-                borderRadius="base"
+-                style={{ marginBottom: "2px" }}
+-              >
+-                <div
+-                  style={{
+-                    display: "grid",
+-                    gridTemplateColumns: "48px 1fr 100px 80px 80px",
+-                    gap: "12px",
+-                    alignItems: "center",
+-                  }}
+-                >
+-                  {/* Image */}
+-                  <div
+-                    style={{
+-                      width: 48,
+-                      height: 48,
+-                      borderRadius: 8,
+-                      overflow: "hidden",
+-                      background: "#f1f1f1",
+-                    }}
+-                  >
+-                    {product.imageUrl ? (
+-                      <img
+-                        src={product.imageUrl}
+-                        alt={product.title}
+-                        style={{
+-                          width: "100%",
+-                          height: "100%",
+-                          objectFit: "cover",
+-                        }}
+-                      />
+-                    ) : (
+-                      <div
+-                        style={{
+-                          width: "100%",
+-                          height: "100%",
+-                          display: "flex",
+-                          alignItems: "center",
+-                          justifyContent: "center",
+-                          fontSize: 20,
+-                        }}
+-                      >
+-                        ≡ƒôª
+-                      </div>
+-                    )}
+-                  </div>
+-
+-                  {/* Title */}
+-                  <s-text variant="bodyMd" fontWeight="semibold">
+-                    {product.title}
+-                  </s-text>
+-
+-                  {/* Price */}
+-                  <s-text variant="bodyMd">
+-                    {product.currency === "USD" ? "$" : product.currency}{" "}
+-                    {parseFloat(product.price || 0).toFixed(2)}
+-                  </s-text>
+-
+-                  {/* Wishlist Count ΓÇö Badge */}
+-                  <div>
+-                    <span
+-                      style={{
+-                        display: "inline-flex",
+-                        alignItems: "center",
+-                        gap: 4,
+-                        background: "#fef3f2",
+-                        color: "#e63946",
+-                        padding: "4px 10px",
+-                        borderRadius: 20,
+-                        fontWeight: 600,
+-                        fontSize: 13,
+-                      }}
+-                    >
+-                      ΓÖÑ {product.wishlistCount}
+-                    </span>
+-                  </div>
++    <Page title="Wishlist Dashboard" primaryAction={{content: 'Refresh Data', onAction: () => window.location.reload()}}>
++      <Layout>
++        <Layout.Section>
++          <BlockStack gap="500">
++            <InlineStack gap="400" wrap={false}>
++              <Box padding="400" background="bg-surface-secondary" borderRadius="200" minWidth="200px">
++                <BlockStack gap="200">
++                  <Text as="p" variant="bodyMd" tone="subdued">≡ƒæÑ Users with Wishlists</Text>
++                  <Text as="p" variant="heading2xl">{analytics.totalCustomers}</Text>
++                </BlockStack>
++              </Box>
++              <Box padding="400" background="bg-surface-secondary" borderRadius="200" minWidth="200px">
++                <BlockStack gap="200">
++                  <Text as="p" variant="bodyMd" tone="subdued">ΓÖÑ Total Wishlisted Items</Text>
++                  <Text as="p" variant="heading2xl">{analytics.totalItems}</Text>
++                </BlockStack>
++              </Box>
++              <Box padding="400" background="bg-surface-secondary" borderRadius="200" minWidth="200px">
++                <BlockStack gap="200">
++                  <Text as="p" variant="bodyMd" tone="subdued">≡ƒôè Updated Today</Text>
++                  <Text as="p" variant="heading2xl">{analytics.todayCount}</Text>
++                </BlockStack>
++              </Box>
++            </InlineStack>
+ 
+-                  {/* View Button */}
+-                  <s-button
+-                    variant="tertiary"
+-                    size="slim"
+-                    onClick={() => {
+-                      shopify.intents?.invoke?.("edit:shopify/Product", {
+-                        value: product.id,
+-                      });
+-                    }}
+-                  >
+-                    View
+-                  </s-button>
+-                </div>
+-              </s-box>
+-            ))}
+-          </s-box>
+-        )}
+-      </s-section>
++            <Card padding="0">
++              <Box padding="400" paddingBottom="200">
++                <Text variant="headingMd" as="h2">Most Wishlisted Products</Text>
++              </Box>
++              {analytics.topProducts.length === 0 ? (
++                <Box padding="400">
++                  <BlockStack gap="400" inlineAlign="center">
++                    <Text variant="headingLg" as="h3">No wishlist data yet</Text>
++                    <Text as="p" variant="bodyMd" tone="subdued">
++                      Wishlist analytics will appear here once customers start adding
++                      products to their wishlists.
++                    </Text>
++                  </BlockStack>
++                </Box>
++              ) : (
++                <Box padding="0">
++                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
++                    <thead>
++                      <tr>
++                        <th style={{ padding: '12px 16px', borderBottom: '1px solid #ebebeb' }}>Product</th>
++                        <th style={{ padding: '12px 16px', borderBottom: '1px solid #ebebeb' }}>Price</th>
++                        <th style={{ padding: '12px 16px', borderBottom: '1px solid #ebebeb' }}>Wishlists</th>
++                        <th style={{ padding: '12px 16px', borderBottom: '1px solid #ebebeb' }}></th>
++                      </tr>
++                    </thead>
++                    <tbody>
++                      {analytics.topProducts.map((product) => (
++                        <tr key={product.id} style={{ borderBottom: '1px solid #ebebeb' }}>
++                          <td style={{ padding: '12px 16px' }}>
++                            <InlineStack gap="400" blockAlign="center" wrap={false}>
++                              {product.imageUrl ? (
++                                <img src={product.imageUrl} alt={product.title} style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover' }} />
++                              ) : (
++                                <Box background="bg-surface-tertiary" minHeight="40px" minWidth="40px" borderRadius="100" />
++                              )}
++                              <Text as="span" variant="bodyMd" fontWeight="semibold">{product.title}</Text>
++                            </InlineStack>
++                          </td>
++                          <td style={{ padding: '12px 16px' }}>
++                            <Text as="span" variant="bodyMd">
++                              {product.currency === "USD" ? "$" : product.currency}{parseFloat(product.price || 0).toFixed(2)}
++                            </Text>
++                          </td>
++                          <td style={{ padding: '12px 16px' }}>
++                            <span style={{ display: 'inline-flex', background: '#fef3f2', color: '#e63946', padding: '4px 10px', borderRadius: 20, fontWeight: 600, fontSize: 13 }}>
++                              ΓÖÑ {product.wishlistCount}
++                            </span>
++                          </td>
++                          <td style={{ padding: '12px 16px' }}>
++                            <Button size="micro" onClick={() => window.shopify?.intents?.invoke?.("edit:shopify/Product", { id: product.id })}>View</Button>
++                          </td>
++                        </tr>
++                      ))}
++                    </tbody>
++                  </table>
++                </Box>
++              )}
++            </Card>
++          </BlockStack>
++        </Layout.Section>
+ 
+-      {/* Setup Info */}
+-      <s-section slot="aside" heading="Wishlist Setup">
+-        <s-stack direction="block" gap="base">
+-          <s-paragraph>
+-            <s-text fontWeight="semibold">Theme Extension: </s-text>
+-            <s-text>
+-              Make sure the Wishlist Button block is added to your product pages
+-              in the Theme Editor.
+-            </s-text>
+-          </s-paragraph>
+-          <s-paragraph>
+-            <s-text fontWeight="semibold">How it works: </s-text>
+-            <s-text>
+-              When customers click the heart button on a product page, the
+-              product is saved to their wishlist. Logged-in customers get their
+-              wishlist synced to their account via Shopify Metafields.
+-            </s-text>
+-          </s-paragraph>
+-        </s-stack>
+-      </s-section>
++        <Layout.Section variant="oneThird">
++          <BlockStack gap="500">
++            <Card>
++              <BlockStack gap="200">
++                <Text variant="headingMd" as="h2">Wishlist Setup</Text>
++                <Text as="p" fontWeight="semibold">Theme Extension:</Text>
++                <Text as="p">Make sure the Wishlist Button block is added to your product pages in the Theme Editor.</Text>
++                <Text as="p" fontWeight="semibold">How it works:</Text>
++                <Text as="p">When customers click the heart button on a product page, the product is saved to their wishlist. Logged-in customers get their wishlist synced to their account via Shopify Metafields.</Text>
++              </BlockStack>
++            </Card>
+ 
+-      <s-section slot="aside" heading="Quick Links">
+-        <s-unordered-list>
+-          <s-list-item>
+-            <s-link
+-              href="https://wishlist-dev-app-2.myshopify.com/admin/themes/current/editor"
+-              target="_blank"
+-            >
+-              Theme Editor
+-            </s-link>
+-          </s-list-item>
+-        </s-unordered-list>
+-      </s-section>
+-    </s-page>
++            <Card>
++              <BlockStack gap="200">
++                <Text variant="headingMd" as="h2">Quick Links</Text>
++                <List>
++                  <List.Item>
++                    <Link url="https://wishlist-dev-app-2.myshopify.com/admin/themes/current/editor" external>Theme Editor</Link>
++                  </List.Item>
++                </List>
++              </BlockStack>
++            </Card>
++          </BlockStack>
++        </Layout.Section>
++      </Layout>
++    </Page>
+   );
+ }
+ 
+diff --git a/app/routes/app.additional.jsx b/app/routes/app.additional.jsx
+index e7c8c72..c0993dd 100644
+--- a/app/routes/app.additional.jsx
++++ b/app/routes/app.additional.jsx
+@@ -1,37 +1,42 @@
++import { Page, Layout, Card, BlockStack, Text, Link, List } from "@shopify/polaris";
++
+ export default function AdditionalPage() {
+   return (
+-    <s-page heading="Additional page">
+-      <s-section heading="Multiple pages">
+-        <s-paragraph>
+-          The app template comes with an additional page which demonstrates how
+-          to create multiple pages within app navigation using{" "}
+-          <s-link
+-            href="https://shopify.dev/docs/apps/tools/app-bridge"
+-            target="_blank"
+-          >
+-            App Bridge
+-          </s-link>
+-          .
+-        </s-paragraph>
+-        <s-paragraph>
+-          To create your own page and have it show up in the app navigation, add
+-          a page inside <code>app/routes</code>, and a link to it in the{" "}
+-          <code>&lt;ui-nav-menu&gt;</code> component found in{" "}
+-          <code>app/routes/app.jsx</code>.
+-        </s-paragraph>
+-      </s-section>
+-      <s-section slot="aside" heading="Resources">
+-        <s-unordered-list>
+-          <s-list-item>
+-            <s-link
+-              href="https://shopify.dev/docs/apps/design-guidelines/navigation#app-nav"
+-              target="_blank"
+-            >
+-              App nav best practices
+-            </s-link>
+-          </s-list-item>
+-        </s-unordered-list>
+-      </s-section>
+-    </s-page>
++    <Page title="Additional page">
++      <Layout>
++        <Layout.Section>
++          <Card>
++            <BlockStack gap="400">
++              <Text variant="headingMd" as="h2">Multiple pages</Text>
++              <Text as="p">
++                The app template comes with an additional page which demonstrates how 
++                to create multiple pages within app navigation using{" "}
++                <Link url="https://shopify.dev/docs/apps/tools/app-bridge" external>App Bridge</Link>.
++              </Text>
++              <Text as="p">
++                To create your own page and have it show up in the app navigation, add
++                a page inside <code>app/routes</code>, and a link to it in the{" "}
++                <code>&lt;ui-nav-menu&gt;</code> component found in{" "}
++                <code>app/routes/app.jsx</code>.
++              </Text>
++            </BlockStack>
++          </Card>
++        </Layout.Section>
++        <Layout.Section variant="oneThird">
++          <Card>
++            <BlockStack gap="400">
++              <Text variant="headingMd" as="h2">Resources</Text>
++              <List>
++                <List.Item>
++                  <Link url="https://shopify.dev/docs/apps/design-guidelines/navigation#app-nav" external>
++                    App nav best practices
++                  </Link>
++                </List.Item>
++              </List>
++            </BlockStack>
++          </Card>
++        </Layout.Section>
++      </Layout>
++    </Page>
+   );
+ }
+diff --git a/app/routes/app.jsx b/app/routes/app.jsx
+index 40ccd33..991c1af 100644
+--- a/app/routes/app.jsx
++++ b/app/routes/app.jsx
+@@ -1,8 +1,13 @@
+-import { Outlet, useLoaderData, useRouteError } from "react-router";
++import { Outlet, useLoaderData, useRouteError, Link } from "react-router";
+ import { boundary } from "@shopify/shopify-app-react-router/server";
+ import { AppProvider } from "@shopify/shopify-app-react-router/react";
++import { AppProvider as PolarisAppProvider } from "@shopify/polaris";
++import enTranslations from "@shopify/polaris/locales/en.json";
++import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
+ import { authenticate } from "../shopify.server";
+ 
++export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
++
+ export const loader = async ({ request }) => {
+   await authenticate.admin(request);
+ 
+@@ -14,11 +19,11 @@ export default function App() {
+   const { apiKey } = useLoaderData();
+ 
+   return (
+-    <AppProvider embedded apiKey={apiKey}>
+-      <s-app-nav>
+-        <s-link href="/app">Dashboard</s-link>
+-      </s-app-nav>
+-      <Outlet />
++    <AppProvider isEmbeddedApp apiKey={apiKey}>
++      <PolarisAppProvider i18n={enTranslations}>
++
++        <Outlet />
++      </PolarisAppProvider>
+     </AppProvider>
+   );
+ }
+diff --git a/app/routes/auth.login/route.jsx b/app/routes/auth.login/route.jsx
+index cdfd2a8..4697cdc 100644
+--- a/app/routes/auth.login/route.jsx
++++ b/app/routes/auth.login/route.jsx
+@@ -1,8 +1,13 @@
+ import { AppProvider } from "@shopify/shopify-app-react-router/react";
++import { Page, Card, FormLayout, TextField, Button, Text, AppProvider as PolarisAppProvider } from "@shopify/polaris";
++import enTranslations from "@shopify/polaris/locales/en.json";
+ import { useState } from "react";
+ import { Form, useActionData, useLoaderData } from "react-router";
+ import { login } from "../../shopify.server";
+ import { loginErrorMessage } from "./error.server";
++import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
++
++export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
+ 
+ export const loader = async ({ request }) => {
+   const errors = loginErrorMessage(await login(request));
+@@ -25,23 +30,29 @@ export default function Auth() {
+   const { errors } = actionData || loaderData;
+ 
+   return (
+-    <AppProvider embedded={false}>
+-      <s-page>
+-        <Form method="post">
+-          <s-section heading="Log in">
+-            <s-text-field
+-              name="shop"
+-              label="Shop domain"
+-              details="example.myshopify.com"
+-              value={shop}
+-              onChange={(e) => setShop(e.currentTarget.value)}
+-              autocomplete="on"
+-              error={errors.shop}
+-            ></s-text-field>
+-            <s-button type="submit">Log in</s-button>
+-          </s-section>
+-        </Form>
+-      </s-page>
++    <AppProvider isEmbeddedApp={false}>
++      <PolarisAppProvider i18n={enTranslations}>
++        <Page>
++          <Card>
++            <Form method="post">
++              <FormLayout>
++                <Text variant="headingMd" as="h2">Log in</Text>
++                <TextField
++                  type="text"
++                  name="shop"
++                  label="Shop domain"
++                  helpText="example.myshopify.com"
++                  value={shop}
++                  onChange={setShop}
++                  autoComplete="on"
++                  error={errors.shop}
++                />
++                <Button submit>Log in</Button>
++              </FormLayout>
++            </Form>
++          </Card>
++        </Page>
++      </PolarisAppProvider>
+     </AppProvider>
+   );
+ }
+diff --git a/extensions/wishlist-button/blocks/wishlist_button.liquid b/extensions/wishlist-button/blocks/wishlist_button.liquid
+index ea1c575..e4960d0 100644
+--- a/extensions/wishlist-button/blocks/wishlist_button.liquid
++++ b/extensions/wishlist-button/blocks/wishlist_button.liquid
+@@ -80,12 +80,37 @@
+ <script>
+   (function () {
+     var STORAGE_KEY = 'shopify_wishlist';
++    var USER_KEY = 'wishlist_logged_in_user';
+     var productId = '{{ product.id }}';
+     var productHandle = '{{ product.handle }}';
+     var btn = document.getElementById('wishlist-btn-' + productId);
+     var icon = document.getElementById('wishlist-icon-' + productId);
+     var label = document.getElementById('wishlist-label-' + productId);
+ 
++    function getCustomerId() {
++      try {
++        if (window.__customerId) return String(window.__customerId);
++        if (window.__st && window.__st.cid) return String(window.__st.cid);
++        if (window.meta && window.meta.page && window.meta.page.customerId)
++          return String(window.meta.page.customerId);
++      } catch(e) {}
++      return null;
++    }
++
++    var currentUser = getCustomerId() || 'guest';
++    var savedUser = localStorage.getItem(USER_KEY);
++    
++    if (savedUser && savedUser !== currentUser) {
++      if (savedUser === 'guest' && currentUser !== 'guest') {
++        localStorage.setItem(USER_KEY, currentUser);
++      } else {
++        localStorage.removeItem(STORAGE_KEY);
++        localStorage.setItem(USER_KEY, currentUser);
++      }
++    } else if (!savedUser) {
++      localStorage.setItem(USER_KEY, currentUser);
++    }
++
+     if (!btn || !productId) return;
+ 
+     function getWishlist() {
+@@ -137,16 +162,7 @@
+       icon.classList.add('pop');
+     }
+ 
+-    // Γ£à FIXED: Customer ID detect karna
+-    function getCustomerId() {
+-      try {
+-        if (window.__customerId) return String(window.__customerId);
+-        if (window.__st && window.__st.cid) return String(window.__st.cid);
+-        if (window.meta && window.meta.page && window.meta.page.customerId)
+-          return String(window.meta.page.customerId);
+-      } catch(e) {}
+-      return null;
+-    }
++    // getCustomerId() moved to top
+ 
+     updateUI(isInWishlist());
+ 
+diff --git a/extensions/wishlist-button/blocks/wishlist_page.liquid b/extensions/wishlist-button/blocks/wishlist_page.liquid
+index f092005..d7ec578 100644
+--- a/extensions/wishlist-button/blocks/wishlist_page.liquid
++++ b/extensions/wishlist-button/blocks/wishlist_page.liquid
+@@ -244,6 +244,21 @@
+     return null;
+   }
+ 
++  var USER_KEY = 'wishlist_logged_in_user';
++  var currentUser = getCustomerId() || 'guest';
++  var savedUser = localStorage.getItem(USER_KEY);
++  
++  if (savedUser && savedUser !== currentUser) {
++    if (savedUser === 'guest' && currentUser !== 'guest') {
++      localStorage.setItem(USER_KEY, currentUser);
++    } else {
++      localStorage.removeItem(STORAGE_KEY);
++      localStorage.setItem(USER_KEY, currentUser);
++    }
++  } else if (!savedUser) {
++    localStorage.setItem(USER_KEY, currentUser);
++  }
++
+   function getWishlistItems() {
+     try {
+       var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+diff --git a/package-lock.json b/package-lock.json
+index e39e36b..d047797 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -15,6 +15,7 @@
+         "@react-router/node": "^7.12.0",
+         "@react-router/serve": "^7.12.0",
+         "@shopify/app-bridge-react": "^4.2.4",
++        "@shopify/polaris": "^13.9.5",
+         "@shopify/shopify-app-react-router": "^1.1.0",
+         "@shopify/shopify-app-session-storage-prisma": "^8.0.0",
+         "isbot": "^5.1.31",
+@@ -472,7 +473,6 @@
+       "version": "7.29.2",
+       "resolved": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.29.2.tgz",
+       "integrity": "sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=6.9.0"
+@@ -2873,9 +2873,6 @@
+         "arm"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2897,9 +2894,6 @@
+         "arm"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2921,9 +2915,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2945,9 +2936,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2969,9 +2957,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2993,9 +2978,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3422,9 +3404,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3438,9 +3417,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3454,9 +3430,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3470,9 +3443,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3486,9 +3456,6 @@
+       "cpu": [
+         "loong64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3502,9 +3469,6 @@
+       "cpu": [
+         "loong64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3518,9 +3482,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3534,9 +3495,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3550,9 +3508,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3566,9 +3521,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3582,9 +3534,6 @@
+       "cpu": [
+         "s390x"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3598,9 +3547,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3614,9 +3560,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3821,6 +3764,52 @@
+       "dev": true,
+       "license": "0BSD"
+     },
++    "node_modules/@shopify/polaris": {
++      "version": "13.9.5",
++      "resolved": "https://registry.npmjs.org/@shopify/polaris/-/polaris-13.9.5.tgz",
++      "integrity": "sha512-UN+rT2q1r/uF0Xia8MaCl2nDxatuzbjunS5WYcv4qw8VBvThTxDVURgpwOuvutSrvu138pwScOAah933vqlYkg==",
++      "license": "SEE LICENSE IN LICENSE.md",
++      "dependencies": {
++        "@shopify/polaris-icons": "^9.3.1",
++        "@shopify/polaris-tokens": "^9.4.2",
++        "@types/react": "*",
++        "@types/react-dom": "*",
++        "@types/react-transition-group": "^4.4.2",
++        "react-fast-compare": "^3.2.0",
++        "react-transition-group": "^4.4.2"
++      },
++      "engines": {
++        "node": ">=20.10.0"
++      },
++      "peerDependencies": {
++        "react": "^18.0.0",
++        "react-dom": "^18.0.0"
++      }
++    },
++    "node_modules/@shopify/polaris-icons": {
++      "version": "9.3.1",
++      "resolved": "https://registry.npmjs.org/@shopify/polaris-icons/-/polaris-icons-9.3.1.tgz",
++      "integrity": "sha512-16BIFAT93LJ8X4YRXz5cR9ZPHeErMg3DYS0gyTPNPkd0E5IBPoTxPINjn2b4Mr9Sc1x4RfI4AqPcV8ut0D1J5w==",
++      "license": "SEE LICENSE IN LICENSE.md",
++      "engines": {
++        "node": ">=20.10.0"
++      },
++      "peerDependencies": {
++        "react": "*"
++      }
++    },
++    "node_modules/@shopify/polaris-tokens": {
++      "version": "9.4.2",
++      "resolved": "https://registry.npmjs.org/@shopify/polaris-tokens/-/polaris-tokens-9.4.2.tgz",
++      "integrity": "sha512-WNoDWLYFj38Cj0FolbNsLaY54JbjuYoO0qsLCj6yBb3Bkg4BEdAjOHji9AktL9IZGPsNhTcMp2/8CfzKtSHg2A==",
++      "license": "SEE LICENSE IN LICENSE.md",
++      "dependencies": {
++        "deepmerge": "^4.3.1"
++      },
++      "engines": {
++        "node": ">=20.10.0"
++      }
++    },
+     "node_modules/@shopify/polaris-types": {
+       "version": "1.0.1",
+       "resolved": "https://registry.npmjs.org/@shopify/polaris-types/-/polaris-types-1.0.1.tgz",
+@@ -4015,14 +4004,12 @@
+       "version": "15.7.15",
+       "resolved": "https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.15.tgz",
+       "integrity": "sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==",
+-      "dev": true,
+       "license": "MIT"
+     },
+     "node_modules/@types/react": {
+       "version": "18.3.28",
+       "resolved": "https://registry.npmjs.org/@types/react/-/react-18.3.28.tgz",
+       "integrity": "sha512-z9VXpC7MWrhfWipitjNdgCauoMLRdIILQsAEV+ZesIzBq/oUlxk0m3ApZuMFCXdnS4U7KrI+l3WRUEGQ8K1QKw==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "@types/prop-types": "*",
+@@ -4033,12 +4020,20 @@
+       "version": "18.3.7",
+       "resolved": "https://registry.npmjs.org/@types/react-dom/-/react-dom-18.3.7.tgz",
+       "integrity": "sha512-MEe3UeoENYVFXzoXEWsvcpg6ZvlrFNlOQ7EOsvhI3CfAXwzPfO8Qwuxd40nepsYKqyyVQnTdEfv68q91yLcKrQ==",
+-      "dev": true,
+       "license": "MIT",
+       "peerDependencies": {
+         "@types/react": "^18.0.0"
+       }
+     },
++    "node_modules/@types/react-transition-group": {
++      "version": "4.4.12",
++      "resolved": "https://registry.npmjs.org/@types/react-transition-group/-/react-transition-group-4.4.12.tgz",
++      "integrity": "sha512-8TV6R3h2j7a91c+1DXdJi3Syo69zzIZbz7Lg5tORM5LEJG7X/E6a1V3drRyBRZq7/utz7A+c4OgYLiLcYGHG6w==",
++      "license": "MIT",
++      "peerDependencies": {
++        "@types/react": "*"
++      }
++    },
+     "node_modules/@types/semver": {
+       "version": "7.7.1",
+       "resolved": "https://registry.npmjs.org/@types/semver/-/semver-7.7.1.tgz",
+@@ -4383,9 +4378,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4400,9 +4392,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4417,9 +4406,6 @@
+         "ppc64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4434,9 +4420,6 @@
+         "riscv64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4451,9 +4434,6 @@
+         "riscv64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4468,9 +4448,6 @@
+         "s390x"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4485,9 +4462,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4502,9 +4476,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -5983,7 +5954,6 @@
+       "version": "3.2.3",
+       "resolved": "https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz",
+       "integrity": "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==",
+-      "dev": true,
+       "license": "MIT"
+     },
+     "node_modules/damerau-levenshtein": {
+@@ -6109,6 +6079,15 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/deepmerge": {
++      "version": "4.3.1",
++      "resolved": "https://registry.npmjs.org/deepmerge/-/deepmerge-4.3.1.tgz",
++      "integrity": "sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
+     "node_modules/deepmerge-ts": {
+       "version": "7.1.5",
+       "resolved": "https://registry.npmjs.org/deepmerge-ts/-/deepmerge-ts-7.1.5.tgz",
+@@ -6254,6 +6233,16 @@
+         "node": ">=6.0.0"
+       }
+     },
++    "node_modules/dom-helpers": {
++      "version": "5.2.1",
++      "resolved": "https://registry.npmjs.org/dom-helpers/-/dom-helpers-5.2.1.tgz",
++      "integrity": "sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==",
++      "license": "MIT",
++      "dependencies": {
++        "@babel/runtime": "^7.8.7",
++        "csstype": "^3.0.2"
++      }
++    },
+     "node_modules/dot-case": {
+       "version": "3.0.4",
+       "resolved": "https://registry.npmjs.org/dot-case/-/dot-case-3.0.4.tgz",
+@@ -9905,7 +9894,6 @@
+       "version": "4.1.1",
+       "resolved": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz",
+       "integrity": "sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=0.10.0"
+@@ -10545,7 +10533,6 @@
+       "version": "15.8.1",
+       "resolved": "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz",
+       "integrity": "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "loose-envify": "^1.4.0",
+@@ -10687,11 +10674,16 @@
+         "react": "^18.3.1"
+       }
+     },
++    "node_modules/react-fast-compare": {
++      "version": "3.2.2",
++      "resolved": "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-3.2.2.tgz",
++      "integrity": "sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==",
++      "license": "MIT"
++    },
+     "node_modules/react-is": {
+       "version": "16.13.1",
+       "resolved": "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz",
+       "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==",
+-      "dev": true,
+       "license": "MIT"
+     },
+     "node_modules/react-refresh": {
+@@ -10738,6 +10730,22 @@
+         "url": "https://opencollective.com/express"
+       }
+     },
++    "node_modules/react-transition-group": {
++      "version": "4.4.5",
++      "resolved": "https://registry.npmjs.org/react-transition-group/-/react-transition-group-4.4.5.tgz",
++      "integrity": "sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==",
++      "license": "BSD-3-Clause",
++      "dependencies": {
++        "@babel/runtime": "^7.5.5",
++        "dom-helpers": "^5.0.1",
++        "loose-envify": "^1.4.0",
++        "prop-types": "^15.6.2"
++      },
++      "peerDependencies": {
++        "react": ">=16.6.0",
++        "react-dom": ">=16.6.0"
++      }
++    },
+     "node_modules/readable-stream": {
+       "version": "3.6.2",
+       "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-3.6.2.tgz",
+diff --git a/package.json b/package.json
+index 2967bc9..34b6030 100644
+--- a/package.json
++++ b/package.json
+@@ -3,7 +3,7 @@
+   "private": true,
+   "scripts": {
+     "build": "react-router build",
+-    "dev": "shopify app dev",
++    "dev": "cross-env NODE_OPTIONS='--max-old-space-size=8192' shopify app dev",
+     "config:link": "shopify app config link",
+     "generate": "shopify app generate",
+     "deploy": "shopify app deploy",
+@@ -32,6 +32,7 @@
+     "@react-router/node": "^7.12.0",
+     "@react-router/serve": "^7.12.0",
+     "@shopify/app-bridge-react": "^4.2.4",
++    "@shopify/polaris": "^13.9.5",
+     "@shopify/shopify-app-react-router": "^1.1.0",
+     "@shopify/shopify-app-session-storage-prisma": "^8.0.0",
+     "isbot": "^5.1.31",
+@@ -73,4 +74,4 @@
+     "p-map": "^4.0.0"
+   },
+   "author": "Ls Computer"
+-}
++}
+\ No newline at end of file

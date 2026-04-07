@@ -339,7 +339,7 @@
         fetch('/apps/wishlist/wishlist?customerId=' + customerId, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ productIds: newLocal.map(function(i){return String(i.id);}), action: 'replace' })
+          body: JSON.stringify({ productIds: remaining.map(function(i){return String(i.id);}), action: 'replace' })
         }).catch(function(err) { console.warn('Remove sync failed:', err); });
       }
     });
