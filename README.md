@@ -26,6 +26,14 @@ For a detailed technical deep-dive into the architecture, persistence model, API
 
 ---
 
+## 🔑 Storefront Access
+
+The Shopify development store for validating this application is protected. Use the following password to access the storefront:
+
+**Password:** `riabaw`
+
+---
+
 ## ✨ Key Features
 
 - **Storefront Theme Extension**: Easily customizable "Add to Wishlist" buttons directly on product detail pages via Theme App Extensions without editing liquid files.
