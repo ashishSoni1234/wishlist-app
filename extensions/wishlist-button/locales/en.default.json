@@ -1,0 +1,16 @@
+{
+  "wishlist": {
+    "button": {
+      "add": "Add to Wishlist",
+      "added": "Added to Wishlist",
+      "remove": "Remove from Wishlist"
+    },
+    "page": {
+      "title": "My Wishlist",
+      "empty": "Your wishlist is empty",
+      "browse": "Browse Products",
+      "remove": "Remove",
+      "add_to_cart": "Add to Cart"
+    }
+  }
+}

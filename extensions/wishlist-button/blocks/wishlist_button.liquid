@@ -1,0 +1,269 @@
+{% if customer %}
+<script>
+  window.__customerId = {{ customer.id | json }};
+</script>
+{% endif %}
+
+<style>
+  .wishlist-btn-wrapper {
+    margin: 12px 0;
+  }
+
+  .wishlist-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 2px solid {{ block.settings.btn_color | default: '#e63946' }};
+    color: {{ block.settings.btn_color | default: '#e63946' }};
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  .wishlist-btn:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .wishlist-btn:active {
+    transform: translateY(0);
+  }
+
+  .wishlist-btn.is-wishlisted {
+    background: {{ block.settings.btn_color | default: '#e63946' }};
+    color: #fff;
+  }
+
+  .wishlist-btn .wishlist-icon {
+    font-size: 18px;
+    line-height: 1;
+    transition: transform 0.3s ease;
+  }
+
+  .wishlist-btn:hover .wishlist-icon {
+    transform: scale(1.2);
+  }
+
+  .wishlist-btn .wishlist-icon.pop {
+    animation: wishlist-pop 0.4s ease;
+  }
+
+  @keyframes wishlist-pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.5); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+</style>
+
+<div class="wishlist-btn-wrapper">
+  <button
+    class="wishlist-btn"
+    id="wishlist-btn-{{ product.id }}"
+    data-product-id="{{ product.id }}"
+    aria-label="Add to Wishlist"
+    type="button"
+  >
+    <span class="wishlist-icon" id="wishlist-icon-{{ product.id }}">♡</span>
+    <span class="wishlist-label" id="wishlist-label-{{ product.id }}">Add to Wishlist</span>
+  </button>
+</div>
+
+<script>
+  (function () {
+    var STORAGE_KEY = 'shopify_wishlist';
+    var productId = '{{ product.id }}';
+    var productHandle = '{{ product.handle }}';
+    var btn = document.getElementById('wishlist-btn-' + productId);
+    var icon = document.getElementById('wishlist-icon-' + productId);
+    var label = document.getElementById('wishlist-label-' + productId);
+
+    if (!btn || !productId) return;
+
+    function getWishlist() {
+      try {
+        var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        if (list.length > 0 && typeof list[0] === 'string') return [];
+        return list;
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveWishlist(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {
+        console.warn('Wishlist: localStorage unavailable');
+      }
+    }
+
+    function findIndexInWishlist(list) {
+      for (var i = 0; i < list.length; i++) {
+        if (String(list[i].id) === String(productId)) return i;
+      }
+      return -1;
+    }
+
+    function isInWishlist() {
+      return findIndexInWishlist(getWishlist()) !== -1;
+    }
+
+    function updateUI(inWishlist) {
+      if (inWishlist) {
+        btn.classList.add('is-wishlisted');
+        btn.setAttribute('aria-label', 'Remove from Wishlist');
+        icon.textContent = '♥';
+        label.textContent = 'Added to Wishlist';
+      } else {
+        btn.classList.remove('is-wishlisted');
+        btn.setAttribute('aria-label', 'Add to Wishlist');
+        icon.textContent = '♡';
+        label.textContent = 'Add to Wishlist';
+      }
+    }
+
+    function animateIcon() {
+      icon.classList.remove('pop');
+      void icon.offsetWidth;
+      icon.classList.add('pop');
+    }
+
+    // ✅ FIXED: Customer ID detect karna
+    function getCustomerId() {
+      try {
+        if (window.__customerId) return String(window.__customerId);
+        if (window.__st && window.__st.cid) return String(window.__st.cid);
+        if (window.meta && window.meta.page && window.meta.page.customerId)
+          return String(window.meta.page.customerId);
+      } catch(e) {}
+      return null;
+    }
+
+    updateUI(isInWishlist());
+
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      var wishlist = getWishlist();
+      var idx = findIndexInWishlist(wishlist);
+
+      var actionStr = 'add';
+      if (idx !== -1) {
+        wishlist.splice(idx, 1);
+        updateUI(false);
+        actionStr = 'remove';
+      } else {
+        wishlist.push({ id: productId, handle: productHandle });
+        updateUI(true);
+      }
+
+      animateIcon();
+      saveWishlist(wishlist);
+
+      document.dispatchEvent(new CustomEvent('wishlist:changed', {
+        detail: { productId: productId, wishlisted: actionStr === 'add', wishlist: wishlist }
+      }));
+
+      var customerId = getCustomerId();
+      if (customerId) {
+        fetch('/apps/wishlist/wishlist?customerId=' + customerId, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId: String(productId), action: actionStr })
+        }).catch(function(err) {
+          console.warn('Wishlist sync failed:', err);
+        });
+      }
+    });
+
+    window.addEventListener('storage', function (e) {
+      if (e.key === STORAGE_KEY) {
+        updateUI(isInWishlist());
+      }
+    });
+
+    function syncToMetafieldIfLoggedIn(wishlist) {
+      var customerId = getCustomerId();
+      if (!customerId) return;
+
+      var justIds = wishlist.map(function(item) { return item.id; });
+
+      fetch('/apps/wishlist/wishlist?customerId=' + customerId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productIds: justIds })
+      }).catch(function(err) {
+        console.warn('Wishlist sync failed:', err);
+      });
+    }
+
+    (function initSync() {
+      var customerId = getCustomerId();
+      if (!customerId) return;
+
+      fetch('/apps/wishlist/wishlist?customerId=' + customerId)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!data.success || !Array.isArray(data.wishlist)) return;
+
+          var local = getWishlist();
+          var localIds = local.map(function(item) { return String(item.id); });
+
+          var serverNumIds = data.wishlist.map(function(p) {
+            return String(p.id);
+          });
+
+          var missingIds = serverNumIds.filter(function(id) {
+            return localIds.indexOf(id) === -1;
+          });
+
+          if (missingIds.length === 0) {
+            if (local.length > serverNumIds.length) {
+              syncToMetafieldIfLoggedIn(local);
+            }
+            return;
+          }
+
+          var merged = local.slice();
+          data.wishlist.forEach(function(p) {
+            var numId = String(p.id);
+            var alreadyExists = merged.some(function(item) {
+              return String(item.id) === numId;
+            });
+            if (!alreadyExists) {
+              merged.push({ id: numId, handle: p.handle });
+            }
+          });
+          saveWishlist(merged);
+          updateUI(findIndexInWishlist(merged) !== -1);
+          if (merged.length > serverNumIds.length) {
+            syncToMetafieldIfLoggedIn(merged);
+          }
+        })
+        .catch(function() {});
+    })();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Wishlist Button",
+  "target": "section",
+  "settings": [
+    {
+      "type": "color",
+      "id": "btn_color",
+      "label": "Button Color",
+      "default": "#e63946"
+    }
+  ]
+}
+{% endschema %}

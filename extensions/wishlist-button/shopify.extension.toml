@@ -1,0 +1,7 @@
+api_version = "2026-07"
+uid = "c992d8a7-d734-ca5b-238e-282fcc9d779353d727b0"
+
+[[extensions]]
+name = "Wishlist Button"
+type = "theme"
+handle = "wishlist-button"

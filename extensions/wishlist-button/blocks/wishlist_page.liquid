@@ -1,0 +1,491 @@
+{% if customer %}
+<script>
+  window.__customerId = {{ customer.id | json }};
+</script>
+{% endif %}
+
+<style>
+  .wl-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: inherit;
+  }
+
+  .wl-page__title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+  }
+
+  .wl-page__subtitle {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 32px;
+  }
+
+  .wl-page__count {
+    font-weight: 600;
+    color: #e63946;
+  }
+
+  .wl-empty {
+    text-align: center;
+    padding: 80px 20px;
+    border: 2px dashed #e8e8e8;
+    border-radius: 12px;
+    display: none;
+  }
+
+  .wl-empty__icon { font-size: 56px; margin-bottom: 16px; line-height: 1; }
+  .wl-empty__text { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #1a1a1a; }
+  .wl-empty__sub { font-size: 14px; color: #999; margin-bottom: 24px; }
+
+  .wl-empty__btn {
+    display: inline-block;
+    background: #e63946;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 28px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: opacity 0.2s;
+  }
+
+  .wl-empty__btn:hover { opacity: 0.88; }
+
+  .wl-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    font-size: 15px;
+  }
+
+  .wl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+  }
+
+  .wl-card {
+    border: 1px solid #ebebeb;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    background: #fff;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+
+  .wl-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-3px); }
+
+  .wl-card__remove {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    transition: background 0.2s, transform 0.2s;
+    z-index: 1;
+  }
+
+  .wl-card__remove:hover { background: #e63946; color: #fff; transform: scale(1.1); }
+
+  .wl-card__img-wrap {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: #f6f6f6;
+    overflow: hidden;
+  }
+
+  .wl-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+  .wl-card:hover .wl-card__img { transform: scale(1.04); }
+
+  .wl-card__img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #ccc;
+  }
+
+  .wl-card__body { padding: 14px 16px 16px; }
+  .wl-card__title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wl-card__price { font-size: 15px; font-weight: 700; color: #e63946; margin-bottom: 12px; }
+  .wl-card__actions { display: flex; gap: 8px; }
+
+  .wl-card__view {
+    flex: 1;
+    display: inline-block;
+    text-align: center;
+    border: 1.5px solid #1a1a1a;
+    color: #1a1a1a;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .wl-card__view:hover { background: #1a1a1a; color: #fff; }
+
+  .wl-card__atc {
+    flex: 1;
+    background: #e63946;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .wl-card__atc:hover { opacity: 0.88; }
+  .wl-card__atc:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .wl-share {
+    margin-top: 40px;
+    padding: 20px 24px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .wl-share__label { font-size: 14px; font-weight: 600; color: #444; }
+  .wl-share__link { display: flex; gap: 8px; flex: 1; min-width: 200px; max-width: 480px; }
+
+  .wl-share__input {
+    flex: 1;
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    background: #fff;
+    color: #444;
+    min-width: 0;
+  }
+
+  .wl-share__copy {
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+
+  .wl-share__copy:hover { opacity: 0.8; }
+</style>
+
+<div class="wl-page" id="wl-page">
+  <h1 class="wl-page__title">{{ section.settings.title | default: 'My Wishlist' }}</h1>
+  <p class="wl-page__subtitle">
+    <span id="wl-count" class="wl-page__count">0</span> saved items
+  </p>
+
+  <div class="wl-loading" id="wl-loading">Loading your wishlist…</div>
+
+  <div class="wl-empty" id="wl-empty">
+    <div class="wl-empty__icon">♡</div>
+    <div class="wl-empty__text">Your wishlist is empty</div>
+    <p class="wl-empty__sub">Browse our store and click the heart icon to save your favourite products.</p>
+    <a href="{{ section.settings.shop_url | default: '/collections/all' }}" class="wl-empty__btn">
+      Browse Products
+    </a>
+  </div>
+
+  <div class="wl-grid" id="wl-grid" style="display:none;"></div>
+
+  <div class="wl-share" id="wl-share" style="display:none;">
+    <span class="wl-share__label">🔗 Share your wishlist:</span>
+    <div class="wl-share__link">
+      <input class="wl-share__input" id="wl-share-url" type="text" readonly />
+      <button class="wl-share__copy" id="wl-share-copy">Copy Link</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'shopify_wishlist';
+  var SHOP_DOMAIN = {{ shop.permanent_domain | json }};
+
+  // ✅ FIXED: Customer ID detect karna
+  function getCustomerId() {
+    try {
+      if (window.__customerId) return String(window.__customerId);
+      if (window.__st && window.__st.cid) return String(window.__st.cid);
+      if (window.meta && window.meta.page && window.meta.page.customerId)
+        return String(window.meta.page.customerId);
+    } catch(e) {}
+    return null;
+  }
+
+  function getWishlistItems() {
+    try {
+      var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      if (list.length > 0 && typeof list[0] === 'string') return [];
+      return list;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function removeFromWishlist(productId) {
+    var list = getWishlistItems().filter(function(item) {
+      return String(item.id) !== String(productId);
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    return list;
+  }
+
+  function formatPrice(amount, currency) {
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency || 'USD',
+        minimumFractionDigits: 2
+      }).format(amount);
+    } catch(e) {
+      return '$' + parseFloat(amount).toFixed(2);
+    }
+  }
+
+  function addToCart(variantId, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Adding…';
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: variantId, quantity: 1 })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function() {
+      btn.textContent = 'Added ✓';
+      setTimeout(function() { btn.textContent = 'Add to Cart'; btn.disabled = false; }, 2000);
+      document.dispatchEvent(new CustomEvent('cart:refresh'));
+    })
+    .catch(function() { btn.textContent = 'Failed'; btn.disabled = false; });
+  }
+
+  function createCard(product) {
+    var card = document.createElement('div');
+    card.className = 'wl-card';
+    card.dataset.productId = product.id;
+
+    var imgHtml = product.featured_image
+      ? '<img class="wl-card__img" src="' + product.featured_image + '" alt="' + product.title + '" loading="lazy">'
+      : '<div class="wl-card__img-placeholder">📦</div>';
+
+    var price = product.variants && product.variants[0]
+      ? formatPrice(product.variants[0].price / 100, product.currency || '{{ shop.currency }}')
+      : 'View product';
+
+    var variantId = product.variants && product.variants[0] ? product.variants[0].id : null;
+    var available = product.variants && product.variants[0] ? product.variants[0].available : false;
+
+    card.innerHTML =
+      '<button class="wl-card__remove" aria-label="Remove from wishlist" title="Remove">✕</button>' +
+      '<div class="wl-card__img-wrap"><a href="/products/' + product.handle + '">' + imgHtml + '</a></div>' +
+      '<div class="wl-card__body">' +
+        '<div class="wl-card__title" title="' + product.title + '">' + product.title + '</div>' +
+        '<div class="wl-card__price">' + price + '</div>' +
+        '<div class="wl-card__actions">' +
+          '<a class="wl-card__view" href="/products/' + product.handle + '">View</a>' +
+          (variantId && available
+            ? '<button class="wl-card__atc" data-variant-id="' + variantId + '">Add to Cart</button>'
+            : '<button class="wl-card__atc" disabled>Sold Out</button>') +
+        '</div>' +
+      '</div>';
+
+    card.querySelector('.wl-card__remove').addEventListener('click', function() {
+      var remaining = removeFromWishlist(String(product.id));
+      card.style.transition = 'opacity 0.3s, transform 0.3s';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.9)';
+      setTimeout(function() {
+        card.remove();
+        updateCount(remaining.length);
+        if (remaining.length === 0) showEmpty();
+        updateShareUrl(remaining);
+      }, 300);
+
+      // ✅ Server se bhi remove karo agar logged in hai
+      var customerId = getCustomerId();
+      if (customerId) {
+        fetch('/apps/wishlist/wishlist?customerId=' + customerId, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productIds: newLocal.map(function(i){return String(i.id);}), action: 'replace' })
+        }).catch(function(err) { console.warn('Remove sync failed:', err); });
+      }
+    });
+
+    var atcBtn = card.querySelector('.wl-card__atc');
+    if (atcBtn && !atcBtn.disabled) {
+      atcBtn.addEventListener('click', function() { addToCart(variantId, atcBtn); });
+    }
+
+    return card;
+  }
+
+  function updateCount(n) { document.getElementById('wl-count').textContent = n; }
+
+  function showEmpty() {
+    document.getElementById('wl-loading').style.display = 'none';
+    document.getElementById('wl-empty').style.display = 'block';
+    document.getElementById('wl-grid').style.display = 'none';
+    document.getElementById('wl-share').style.display = 'none';
+  }
+
+  function showGrid(products, items) {
+    var grid = document.getElementById('wl-grid');
+    grid.innerHTML = '';
+    products.forEach(function(p) { grid.appendChild(createCard(p)); });
+    document.getElementById('wl-loading').style.display = 'none';
+    document.getElementById('wl-empty').style.display = 'none';
+    document.getElementById('wl-grid').style.display = 'grid';
+    updateCount(products.length);
+    updateShareUrl(items);
+    document.getElementById('wl-share').style.display = 'flex';
+  }
+
+  function updateShareUrl(items) {
+    var handles = items.map(function(i) { return i.handle; }).filter(Boolean);
+    var url = window.location.origin + window.location.pathname + '?items=' + handles.join(',');
+    var input = document.getElementById('wl-share-url');
+    if (input) input.value = url;
+  }
+
+  document.getElementById('wl-share-copy').addEventListener('click', function() {
+    var input = document.getElementById('wl-share-url');
+    try {
+      navigator.clipboard.writeText(input.value).then(function() {
+        var btn = document.getElementById('wl-share-copy');
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = 'Copy Link'; }, 2000);
+      });
+    } catch(e) {
+      input.select();
+      document.execCommand('copy');
+    }
+  });
+
+  function fetchAndShowProducts(items) {
+    if (!items || items.length === 0) { showEmpty(); return; }
+
+    var promises = items.map(function(item) {
+      return fetch('/products/' + item.handle + '.js')
+        .then(function(res) { return res.ok ? res.json() : null; })
+        .catch(function() { return null; });
+    });
+
+    Promise.all(promises).then(function(results) {
+      var valid = results.filter(Boolean);
+      if (valid.length === 0) { showEmpty(); } else { showGrid(valid, items); }
+    });
+  }
+
+  // ✅ MAIN INIT — Server se load karo agar logged in hai
+  function init() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var sharedItems = urlParams.get('items');
+
+    // Shared wishlist view
+    if (sharedItems) {
+      var sharedHandles = sharedItems.split(',').filter(Boolean);
+      var items = sharedHandles.map(function(h) { return { handle: h, id: null }; });
+      fetchAndShowProducts(items);
+      return;
+    }
+
+    var customerId = getCustomerId();
+
+    if (customerId) {
+      // ✅ Logged in — server se fetch karo
+      fetch('/apps/wishlist/wishlist?customerId=' + customerId)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!data.success || !data.wishlist || data.wishlist.length === 0) {
+            // Server empty hai — localStorage check karo
+            var localItems = getWishlistItems();
+            if (localItems.length > 0) {
+              // Local items server pe sync karo
+              var justIds = localItems.map(function(i) { return i.id; });
+              fetch('/apps/wishlist/wishlist?customerId=' + customerId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productIds: justIds })
+              }).catch(function() {});
+              fetchAndShowProducts(localItems);
+            } else {
+              showEmpty();
+            }
+            return;
+          }
+
+          // Server pe items hain! Naya proxy ab seedhe handles bhejta hai
+          var items = data.wishlist.map(function(p) {
+            return { id: String(p.id), handle: p.handle };
+          });
+          
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+          fetchAndShowProducts(items);
+        })
+        .catch(function() {
+          // Server fail — localStorage fallback
+          fetchAndShowProducts(getWishlistItems());
+        });
+    } else {
+      // Logged out — sirf localStorage
+      fetchAndShowProducts(getWishlistItems());
+    }
+  }
+
+  init();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Wishlist Page",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Page Title",
+      "default": "My Wishlist"
+    },
+    {
+      "type": "url",
+      "id": "shop_url",
+      "label": "Browse Products URL",
+      "default": "/collections/all"
+    }
+  ]
+}
+{% endschema %}
