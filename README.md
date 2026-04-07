@@ -1,123 +1,121 @@
-# Shopify Wishlist App
+# 🛍️ Shopify Wishlist App
 
-Production-ready Shopify wishlist app built with React Router v7 and Shopify Theme App Extension.
+> A production-ready, highly conversion-optimized Shopify Wishlist application built with React Router v7, Shopify Theme App Extension, and Prisma.
 
-## What It Does
+[![React Router](https://img.shields.io/badge/React_Router-v7-CA4245?style=for-the-badge&logo=react-router&logoColor=white)](https://reactrouter.com/)
+[![Shopify](https://img.shields.io/badge/Shopify-CLI-95BF47?style=for-the-badge&logo=shopify&logoColor=white)](https://shopify.dev/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
 
-- Adds a wishlist button on product pages via Theme App Extension.
-- Maintains wishlist for guests using localStorage.
-- Syncs logged-in customer wishlist to Shopify Customer Metafields.
-- Provides admin analytics in embedded app UI.
-- Exposes App Proxy endpoints for storefront interactions.
+---
 
-## Tech Stack
+## 🎥 Demo Video
 
-- React Router v7
-- Node.js
-- Shopify CLI + App Bridge
-- Prisma + SQLite (session storage)
-- Vitest + Playwright
+Check out the full demonstration of the Wishlist App in action here:
 
-## Prerequisites
+[![Watch the Demo](https://img.shields.io/badge/YouTube-Watch_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/vl9iSaSz0-w)
 
-- Node.js >=20.19 <22 or >=22.12
-- npm
-- Shopify CLI
-- Shopify Partner account + development store
+*(Alternatively, click [this link](https://youtu.be/vl9iSaSz0-w) to watch the demo directly on YouTube)*
 
-## Quick Start (Any Machine)
+---
 
-### 1) Clone repository
+## 📑 Full Documentation
+
+For a detailed technical deep-dive into the architecture, persistence model, API contracts, and testing procedures, please see our complete documentation:
+
+👉 **[Read the Full Documentation (DOCUMENTATION.md)](./DOCUMENTATION.md)**
+
+---
+
+## ✨ Key Features
+
+- **Storefront Theme Extension**: Easily customizable "Add to Wishlist" buttons directly on product detail pages via Theme App Extensions without editing liquid files.
+- **Guest & Logged-In Support**: 
+  - *Guests*: Wishlist is reliably stored in persistent browser `localStorage`.
+  - *Logged-In Customers*: Seamless synchronization with Shopify Customer Metafields for cross-device access.
+- **Admin Dashboard & Analytics**: Embedded Shopify Admin app providing merchants with comprehensive analytics on most wishlisted products.
+- **App Proxy Endpoints**: Secure, fast, and scalable interactions between the storefront and backend database.
+- **Robust Tech Stack**: Powered by modern standards leveraging React Router v7 and generic session storage via Prisma (SQLite configured for dev).
+
+---
+
+## 🛠️ Tech Stack & Technologies
+
+- **Framework**: React Router v7, Node.js
+- **Shopify Integrations**: Shopify CLI, App Bridge React, App Proxy, Theme App Extensions
+- **Database & ORM**: Prisma ORM, SQLite (Switchable to Postgres/MySQL for Prod)
+- **Testing**: Vitest (Unit Testing) and Playwright (E2E Testing)
+- **UI**: Shopify Polaris for the Embedded Admin app
+
+---
+
+## 🚀 Quick Start Guide
+
+### 1) Prerequisites
+
+Ensure you have the following installed:
+- [Node.js](https://nodejs.org/en) `>=20.19 <22` or `>=22.12`
+- `npm` package manager
+- A [Shopify Partner account](https://partners.shopify.com/) and a development store.
+
+### 2) Clone & Install
 
 ```bash
 git clone https://github.com/ashishSoni1234/wishlist-app.git
 cd wishlist-app
-```
-
-### 2) Install dependencies
-
-```bash
 npm install
 ```
 
-### 3) Create environment file
+### 3) Environment Variables Setup
 
-Linux/macOS:
+Copy the example environment file:
+- **Linux/macOS**: `cp .env.example .env`
+- **Windows PowerShell**: `Copy-Item .env.example .env`
 
-```bash
-cp .env.example .env
-```
+Then, edit `.env` and fill in your actual values from the Shopify Partner Dashboard.
 
-Windows PowerShell:
+### 4) Database & Startup
 
-```powershell
-Copy-Item .env.example .env
-```
-
-Then edit .env and fill actual values from Shopify Partner Dashboard.
-
-### 4) Setup local database
+Run Prisma setups and boot the dev server:
 
 ```bash
 npm run setup
-```
-
-### 5) Start dev server
-
-```bash
 npm run dev
 ```
 
-Shopify CLI will prompt to connect the app to a development store.
+*The Shopify CLI will prompt you to link/create an app and authenticate with your development store.*
 
-## Theme Extension Setup
+---
 
-1. Open your dev store Theme Editor.
-2. Add Wishlist Button app block to product template.
-3. Create a page for wishlist and add Wishlist Page block/section.
-4. Save and preview storefront.
+## 📝 Scripts Summary
 
-## Environment Variables
+| Command | Action |
+| --- | --- |
+| `npm run dev` | Starts the local Shopify app dev server |
+| `npm run build` | Builds the React Router application for production |
+| `npm run start` | Serves the production build |
+| `npm run setup` | Performs Prisma schema generation and DB migrations |
+| `npm run test` | Validates local unit tests using `vitest` |
+| `npm run test:e2e`| Runs heavy E2E workflows using Playwright |
+| `npm run lint` | Analyzes code ensuring ES-lint code quality |
+| `npm run deploy`| Deploys standard extensions & configuration via Shopify CLI |
 
-Use .env.example as reference.
+---
 
-- SHOPIFY_API_KEY
-- SHOPIFY_API_SECRET
-- SHOPIFY_APP_URL
-- DATABASE_URL
-- NODE_ENV
+## 🔒 Security Notes
 
-## Scripts
+- **Never commit `.env` or any secrets.**
+- This repository correctly ignores `.env`, `.env.*`, `.sqlite` database files, and build artifacts via `.gitignore`.
+- Always rotate your credentials immediately if they are ever exposed.
 
-- npm run dev - Start Shopify app dev server
-- npm run build - Build app
-- npm run start - Serve production build
-- npm run setup - Prisma generate + migrate deploy
-- npm run lint - Run ESLint
-- npm run test - Run unit tests
-- npm run test:e2e - Run Playwright E2E tests
-- npm run deploy - Deploy app using Shopify CLI
+## ✅ Testing Status
 
-## API Endpoints
+Current local verification status before publication:
 
-Via app proxy:
+- `npm run test`: Passing
+- `npm run lint`: Passing
 
-- GET /apps/wishlist/wishlist
-- POST /apps/wishlist/wishlist
+---
 
-## Security Notes
+## 📄 License
 
-- Never commit .env or any secrets.
-- This repository ignores .env, .env.*, sqlite db files, and build artifacts.
-- Rotate credentials immediately if they are ever exposed.
-
-## Testing Status
-
-Current local verification before publish:
-
-- npm run test: passing
-- npm run lint: passing
-
-## License
-
-MIT
+Distributed under the MIT License.
